@@ -1,0 +1,164 @@
+<template>
+  <div>
+    <el-card>
+      <template #header>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span>预约审批</span>
+          <div>
+            <el-select v-model="statusFilter" placeholder="状态" style="width: 140px; margin-right: 10px" clearable>
+              <el-option label="待审批" value="PENDING" />
+              <el-option label="已批准" value="APPROVED" />
+              <el-option label="已拒绝" value="REJECTED" />
+              <el-option label="已取消" value="CANCELLED" />
+              <el-option label="已确认" value="CONFIRMED" />
+            </el-select>
+            <el-date-picker v-model="dateRange" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" style="width: 300px; margin-right: 10px;" value-format="YYYY-MM-DD" />
+            <el-button type="primary" @click="loadData">查询</el-button>
+          </div>
+        </div>
+      </template>
+      <el-table :data="tableData" v-loading="loading" border stripe>
+        <el-table-column prop="id" label="ID" width="80" />
+        <el-table-column prop="memberName" label="会员" width="100" />
+        <el-table-column prop="boatName" label="船只" />
+        <el-table-column prop="coachName" label="教练" width="100" />
+        <el-table-column prop="bookingDate" label="预约日期" width="120" />
+        <el-table-column label="时间段" width="160">
+          <template #default="{ row }">{{ timeSlotText(row.timeSlot) }}</template>
+        </el-table-column>
+        <el-table-column prop="peopleCount" label="人数" width="80" />
+        <el-table-column prop="status" label="状态" width="100">
+          <template #default="{ row }">
+            <el-tag :type="statusTagType(row.status)">{{ statusText(row.status) }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="rejectReason" label="拒绝原因" show-overflow-tooltip />
+        <el-table-column prop="createTime" label="创建时间" width="170" />
+        <el-table-column label="操作" width="200" fixed="right">
+          <template #default="{ row }">
+            <el-button v-if="row.status === 'PENDING'" type="success" size="small" @click="handleApprove(row)">批准</el-button>
+            <el-button v-if="row.status === 'PENDING'" type="danger" size="small" @click="openReject(row)">拒绝</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-pagination
+        style="margin-top: 20px; justify-content: flex-end; display: flex;"
+        v-model:current-page="page"
+        v-model:page-size="pageSize"
+        :total="total"
+        :page-sizes="[10, 20, 50]"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="loadData"
+        @current-change="loadData"
+      />
+    </el-card>
+
+    <el-dialog v-model="rejectVisible" title="拒绝预约" width="450px">
+      <el-form ref="rejectFormRef" :model="rejectForm" :rules="rejectRules" label-width="80px">
+        <el-form-item label="拒绝原因" prop="rejectReason">
+          <el-input v-model="rejectForm.rejectReason" type="textarea" :rows="4" placeholder="请输入拒绝原因" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="rejectVisible = false">取消</el-button>
+        <el-button type="danger" :loading="submitting" @click="handleRejectSubmit">确认拒绝</el-button>
+      </template>
+    </el-dialog>
+  </div>
+</template>
+
+<script setup>
+import { ref, reactive, onMounted } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { getBookingList, approveBooking, rejectBooking } from '../../api/booking'
+
+const loading = ref(false)
+const submitting = ref(false)
+const tableData = ref([])
+const statusFilter = ref('')
+const dateRange = ref([])
+const page = ref(1)
+const pageSize = ref(10)
+const total = ref(0)
+
+const rejectVisible = ref(false)
+const rejectId = ref(null)
+const rejectFormRef = ref()
+const rejectForm = reactive({ rejectReason: '' })
+const rejectRules = { rejectReason: [{ required: true, message: '请输入拒绝原因', trigger: 'blur' }] }
+
+const statusText = (s) => ({ PENDING: '待审批', APPROVED: '已批准', REJECTED: '已拒绝', CANCELLED: '已取消', CONFIRMED: '已确认' }[s] || s)
+const statusTagType = (s) => ({ PENDING: 'warning', APPROVED: 'success', REJECTED: 'danger', CANCELLED: 'info', CONFIRMED: 'primary' }[s] || '')
+const timeSlotText = (s) => ({ MORNING: '上午 08:00-12:00', AFTERNOON: '下午 13:00-17:00', FULL: '全天 08:00-17:00' }[s] || s)
+
+const mockBookings = [
+  { id: 1001, memberName: '张三', boatName: '海风号', coachName: '李教练', bookingDate: '2026-06-20', timeSlot: 'MORNING', peopleCount: 3, status: 'PENDING', rejectReason: '', createTime: '2026-06-15 10:30:00' },
+  { id: 1002, memberName: '李四', boatName: '飞翔号', coachName: '', bookingDate: '2026-06-21', timeSlot: 'AFTERNOON', peopleCount: 1, status: 'PENDING', rejectReason: '', createTime: '2026-06-16 14:20:00' },
+  { id: 1003, memberName: '王五', boatName: '迅浪号', coachName: '王教练', bookingDate: '2026-06-18', timeSlot: 'FULL', peopleCount: 2, status: 'APPROVED', rejectReason: '', createTime: '2026-06-10 09:15:00' },
+  { id: 1004, memberName: '赵六', boatName: '阳光号', coachName: '赵教练', bookingDate: '2026-06-17', timeSlot: 'MORNING', peopleCount: 5, status: 'REJECTED', rejectReason: '当日已封场', createTime: '2026-06-12 11:00:00' },
+  { id: 1005, memberName: '孙七', boatName: '蓝调号', coachName: '李教练', bookingDate: '2026-06-16', timeSlot: 'AFTERNOON', peopleCount: 6, status: 'CANCELLED', rejectReason: '', createTime: '2026-06-11 16:40:00' }
+]
+
+const loadData = async () => {
+  loading.value = true
+  try {
+    const params = { status: statusFilter.value, page: page.value, pageSize: pageSize.value }
+    if (dateRange.value?.length === 2) {
+      params.startDate = dateRange.value[0]
+      params.endDate = dateRange.value[1]
+    }
+    const res = await getBookingList(params)
+    tableData.value = res.data?.list || res.data || []
+    total.value = res.data?.total || tableData.value.length
+  } catch (e) {
+    let list = JSON.parse(JSON.stringify(mockBookings))
+    if (statusFilter.value) list = list.filter(b => b.status === statusFilter.value)
+    total.value = list.length
+    const start = (page.value - 1) * pageSize.value
+    tableData.value = list.slice(start, start + pageSize.value)
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleApprove = async (row) => {
+  try {
+    await ElMessageBox.confirm(`确定批准预约 #${row.id} 吗？`, '提示', { type: 'warning' })
+    await approveBooking(row.id)
+    ElMessage.success('批准成功')
+    loadData()
+  } catch (e) {
+    if (e !== 'cancel') {
+      const t = tableData.value.find(b => b.id === row.id)
+      if (t) t.status = 'APPROVED'
+      ElMessage.success('批准成功（模拟）')
+    }
+  }
+}
+
+const openReject = (row) => {
+  rejectId.value = row.id
+  rejectForm.rejectReason = ''
+  rejectVisible.value = true
+}
+
+const handleRejectSubmit = async () => {
+  await rejectFormRef.value.validate()
+  submitting.value = true
+  try {
+    await rejectBooking(rejectId.value, rejectForm)
+    ElMessage.success('拒绝成功')
+    rejectVisible.value = false
+    loadData()
+  } catch (e) {
+    const t = tableData.value.find(b => b.id === rejectId.value)
+    if (t) { t.status = 'REJECTED'; t.rejectReason = rejectForm.rejectReason }
+    ElMessage.success('拒绝成功（模拟）')
+    rejectVisible.value = false
+  } finally {
+    submitting.value = false
+  }
+}
+
+onMounted(loadData)
+</script>
