@@ -25,8 +25,6 @@ public class BoatVO {
 
     private LocalDateTime updateTime;
 
-    private Integer deleted;
-
     private String boatTypeName;
 
     private String statusName;

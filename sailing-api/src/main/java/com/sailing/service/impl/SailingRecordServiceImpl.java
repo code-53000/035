@@ -50,7 +50,6 @@ public class SailingRecordServiceImpl extends ServiceImpl<SailingRecordMapper, S
     public void addRecord(SailingRecordDTO sailingRecordDTO, Long createdBy) {
         SailingRecord record = new SailingRecord();
         BeanUtils.copyProperties(sailingRecordDTO, record);
-        record.setCreatedBy(createdBy);
         baseMapper.insert(record);
         if (record.getBookingId() != null) {
             SailingBooking booking = sailingBookingMapper.selectById(record.getBookingId());
@@ -113,9 +112,6 @@ public class SailingRecordServiceImpl extends ServiceImpl<SailingRecordMapper, S
         if (record.getCoachId() != null) {
             userIds.add(record.getCoachId());
         }
-        if (record.getCreatedBy() != null) {
-            userIds.add(record.getCreatedBy());
-        }
         if (userIds.isEmpty()) {
             return;
         }
@@ -128,7 +124,6 @@ public class SailingRecordServiceImpl extends ServiceImpl<SailingRecordMapper, S
         if (record.getMemberId() != null && userMap.containsKey(record.getMemberId())) {
             SysUser member = userMap.get(record.getMemberId());
             vo.setMemberName(member.getRealName());
-            vo.setMemberPhone(member.getPhone());
         }
         if (record.getCoachId() != null && userMap.containsKey(record.getCoachId())) {
             SysUser coach = userMap.get(record.getCoachId());

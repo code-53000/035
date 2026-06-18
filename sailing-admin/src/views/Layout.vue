@@ -62,7 +62,7 @@
           <el-dropdown @command="handleCommand">
             <span class="user-info">
               <el-icon><UserFilled /></el-icon>
-              <span>{{ user?.name || user?.username || '用户' }}</span>
+              <span>{{ user?.realName || user?.name || user?.username || '用户' }}</span>
               <el-tag size="small" :type="roleTagType" style="margin-left: 8px">{{ roleText }}</el-tag>
               <el-icon><ArrowDown /></el-icon>
             </span>

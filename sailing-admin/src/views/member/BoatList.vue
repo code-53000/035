@@ -5,11 +5,11 @@
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <span>船只列表</span>
           <div>
-            <el-input v-model="keyword" placeholder="搜索船名/型号" style="width: 220px; margin-right: 10px" clearable :prefix-icon="Search" />
+            <el-input v-model="keyword" placeholder="搜索船名/船号" style="width: 220px; margin-right: 10px" clearable :prefix-icon="Search" />
             <el-select v-model="statusFilter" placeholder="状态" style="width: 120px; margin-right: 10px" clearable>
               <el-option label="可用" value="AVAILABLE" />
               <el-option label="维护中" value="MAINTENANCE" />
-              <el-option label="已预约" value="BOOKED" />
+              <el-option label="已报废" value="RETIRED" />
             </el-select>
             <el-button type="primary" :icon="Search" @click="loadData">搜索</el-button>
           </div>
@@ -18,11 +18,12 @@
       <el-table :data="tableData" v-loading="loading" border stripe>
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="name" label="船名" />
-        <el-table-column prop="model" label="型号" />
+        <el-table-column prop="code" label="船号" width="120" />
+        <el-table-column prop="boatTypeName" label="船型" width="100" />
         <el-table-column prop="capacity" label="容量(人)" width="100" />
-        <el-table-column prop="status" label="状态" width="100">
+        <el-table-column prop="statusName" label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="statusTagType(row.status)">{{ statusText(row.status) }}</el-tag>
+            <el-tag :type="statusTagType(row.status)">{{ row.statusName || statusText(row.status) }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="description" label="描述" show-overflow-tooltip />
@@ -63,27 +64,28 @@ const page = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
 
-const statusText = (s) => ({ AVAILABLE: '可用', MAINTENANCE: '维护中', BOOKED: '已预约' }[s] || s)
-const statusTagType = (s) => ({ AVAILABLE: 'success', MAINTENANCE: 'warning', BOOKED: 'info' }[s] || '')
+const statusText = (s) => ({ AVAILABLE: '可用', MAINTENANCE: '维护中', RETIRED: '已报废' }[s] || s)
+const statusTagType = (s) => ({ AVAILABLE: 'success', MAINTENANCE: 'warning', RETIRED: 'info' }[s] || '')
+const boatTypeText = (s) => ({ SAILBOAT: '帆船', KAYAK: '皮划艇', PADDLEBOARD: '桨板', MOTORBOAT: '摩托艇', CATAMARAN: '双体船' }[s] || s)
 
 const mockBoats = [
-  { id: 1, name: '海风号', model: 'Hobie Cat 16', capacity: 4, status: 'AVAILABLE', description: '双体帆船，适合初学者' },
-  { id: 2, name: '飞翔号', model: 'Laser', capacity: 1, status: 'AVAILABLE', description: '单人竞技帆船' },
-  { id: 3, name: '蓝调号', model: 'Beneteau 40', capacity: 8, status: 'MAINTENANCE', description: '豪华巡航艇，维护保养中' },
-  { id: 4, name: '迅浪号', model: '470', capacity: 2, status: 'AVAILABLE', description: '双人奥运级帆船' },
-  { id: 5, name: '阳光号', model: 'Catalina 22', capacity: 6, status: 'BOOKED', description: '休闲巡航帆船' },
-  { id: 6, name: '勇者号', model: 'Finn', capacity: 1, status: 'AVAILABLE', description: '单人重量级帆船' }
+  { id: 1, name: '海风号', code: 'B001', boatType: 'CATAMARAN', boatTypeName: '双体船', capacity: 4, status: 'AVAILABLE', statusName: '可用', description: '双体帆船，适合初学者' },
+  { id: 2, name: '飞翔号', code: 'B002', boatType: 'SAILBOAT', boatTypeName: '帆船', capacity: 1, status: 'AVAILABLE', statusName: '可用', description: '单人竞技帆船' },
+  { id: 3, name: '蓝调号', code: 'B003', boatType: 'SAILBOAT', boatTypeName: '帆船', capacity: 8, status: 'MAINTENANCE', statusName: '维护中', description: '豪华巡航艇，维护保养中' },
+  { id: 4, name: '迅浪号', code: 'B004', boatType: 'SAILBOAT', boatTypeName: '帆船', capacity: 2, status: 'AVAILABLE', statusName: '可用', description: '双人奥运级帆船' },
+  { id: 5, name: '阳光号', code: 'B005', boatType: 'SAILBOAT', boatTypeName: '帆船', capacity: 6, status: 'AVAILABLE', statusName: '可用', description: '休闲巡航帆船' },
+  { id: 6, name: '勇者号', code: 'B006', boatType: 'SAILBOAT', boatTypeName: '帆船', capacity: 1, status: 'AVAILABLE', statusName: '可用', description: '单人重量级帆船' }
 ]
 
 const loadData = async () => {
   loading.value = true
   try {
     const res = await getBoatList({ keyword: keyword.value, status: statusFilter.value, page: page.value, pageSize: pageSize.value })
-    tableData.value = res.data?.list || res.data || []
-    total.value = res.data?.total || tableData.value.length
+    tableData.value = res.data?.records || []
+    total.value = res.data?.total || 0
   } catch (e) {
     let list = mockBoats
-    if (keyword.value) list = list.filter(b => b.name.includes(keyword.value) || b.model.includes(keyword.value))
+    if (keyword.value) list = list.filter(b => b.name.includes(keyword.value) || b.code.includes(keyword.value))
     if (statusFilter.value) list = list.filter(b => b.status === statusFilter.value)
     total.value = list.length
     const start = (page.value - 1) * pageSize.value

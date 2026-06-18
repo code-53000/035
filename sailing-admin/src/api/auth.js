@@ -7,11 +7,13 @@ export function login(data) {
     method: 'post',
     data
   }).then(res => {
-    if (res.data?.token) {
-      setToken(res.data.token)
-      if (res.data.user) {
-        setUser(res.data.user)
-      }
+    const token = res.data?.token
+    if (token) {
+      setToken(token)
+    }
+    const user = res.data ? { id: res.data.userId, username: res.data.username, realName: res.data.realName, role: res.data.role, phone: res.data.phone } : null
+    if (user) {
+      setUser(user)
     }
     return res
   })

@@ -33,11 +33,8 @@ public class AdminBookingController {
     }
 
     @GetMapping
-    public Result<IPage<BookingVO>> getBookingPage(
-            BookingQueryDTO bookingQueryDTO,
-            @RequestParam(defaultValue = "1") Integer pageNum,
-            @RequestParam(defaultValue = "10") Integer pageSize) {
-        Page<BookingVO> page = new Page<>(pageNum, pageSize);
+    public Result<IPage<BookingVO>> getBookingPage(BookingQueryDTO bookingQueryDTO) {
+        Page<BookingVO> page = new Page<>(bookingQueryDTO.getPageNum(), bookingQueryDTO.getPageSize());
         IPage<BookingVO> result = sailingBookingService.getBookingPage(page, bookingQueryDTO);
         return Result.success(result);
     }

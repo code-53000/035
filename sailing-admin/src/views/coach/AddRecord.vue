@@ -10,11 +10,14 @@
       <el-form-item label="出海日期" prop="sailDate">
         <el-date-picker v-model="form.sailDate" type="date" placeholder="选择日期" style="width: 100%" value-format="YYYY-MM-DD" />
       </el-form-item>
-      <el-form-item label="出海时间" prop="startTime">
-        <el-time-picker v-model="form.startTime" placeholder="选择出海时间" style="width: 100%" value-format="HH:mm" />
+      <el-form-item label="出海时间" prop="departureTime">
+        <el-date-picker v-model="form.departureTime" type="datetime" placeholder="选择出海时间" style="width: 100%" value-format="YYYY-MM-DD HH:mm:ss" />
       </el-form-item>
-      <el-form-item label="返航时间" prop="endTime">
-        <el-time-picker v-model="form.endTime" placeholder="选择返航时间" style="width: 100%" value-format="HH:mm" />
+      <el-form-item label="返航时间" prop="returnTime">
+        <el-date-picker v-model="form.returnTime" type="datetime" placeholder="选择返航时间" style="width: 100%" value-format="YYYY-MM-DD HH:mm:ss" />
+      </el-form-item>
+      <el-form-item label="时长(分钟)" prop="durationMinutes">
+        <el-input-number v-model="form.durationMinutes" :min="1" :max="1440" :step="10" />
       </el-form-item>
       <el-form-item label="天气" prop="weather">
         <el-select v-model="form.weather" placeholder="选择天气" style="width: 100%">
@@ -25,17 +28,23 @@
           <el-option label="雷阵雨" value="雷阵雨" />
         </el-select>
       </el-form-item>
-      <el-form-item label="海况" prop="seaState">
-        <el-select v-model="form.seaState" placeholder="选择海况" style="width: 100%">
-          <el-option label="平稳" value="平稳" />
-          <el-option label="微浪" value="微浪" />
-          <el-option label="轻浪" value="轻浪" />
-          <el-option label="中浪" value="中浪" />
-          <el-option label="大浪" value="大浪" />
+      <el-form-item label="风速" prop="windSpeed">
+        <el-select v-model="form.windSpeed" placeholder="选择风速" style="width: 100%">
+          <el-option label="无风(0级)" value="0级" />
+          <el-option label="软风(1级)" value="1级" />
+          <el-option label="轻风(2级)" value="2级" />
+          <el-option label="微风(3级)" value="3级" />
+          <el-option label="和风(4级)" value="4级" />
+          <el-option label="清风(5级)" value="5级" />
+          <el-option label="强风(6级)" value="6级" />
         </el-select>
       </el-form-item>
-      <el-form-item label="航行时长(小时)" prop="duration">
-        <el-input-number v-model="form.duration" :min="0.5" :max="24" :step="0.5" />
+      <el-form-item label="潮汐" prop="tide">
+        <el-select v-model="form.tide" placeholder="选择潮汐" style="width: 100%">
+          <el-option label="涨潮" value="涨潮" />
+          <el-option label="平潮" value="平潮" />
+          <el-option label="退潮" value="退潮" />
+        </el-select>
       </el-form-item>
       <el-form-item label="备注">
         <el-input v-model="form.remark" type="textarea" :rows="3" placeholder="航行情况备注" />
@@ -65,34 +74,38 @@ const form = reactive({
   boatId: null,
   boatName: '',
   sailDate: '',
-  startTime: '',
-  endTime: '',
+  departureTime: '',
+  returnTime: '',
+  durationMinutes: 120,
   weather: '',
-  seaState: '',
-  duration: 2,
+  windSpeed: '',
+  tide: '',
   remark: ''
 })
 
 const rules = {
   sailDate: [{ required: true, message: '请选择出海日期', trigger: 'change' }],
-  startTime: [{ required: true, message: '请选择出海时间', trigger: 'change' }],
-  endTime: [{ required: true, message: '请选择返航时间', trigger: 'change' }],
+  departureTime: [{ required: true, message: '请选择出海时间', trigger: 'change' }],
+  returnTime: [{ required: true, message: '请选择返航时间', trigger: 'change' }],
+  durationMinutes: [{ required: true, message: '请输入航行时长', trigger: 'blur' }],
   weather: [{ required: true, message: '请选择天气', trigger: 'change' }],
-  seaState: [{ required: true, message: '请选择海况', trigger: 'change' }],
-  duration: [{ required: true, message: '请输入航行时长', trigger: 'blur' }]
+  windSpeed: [{ required: true, message: '请选择风速', trigger: 'change' }],
+  tide: [{ required: true, message: '请选择潮汐', trigger: 'change' }]
 }
 
 const open = (booking) => {
   form.bookingId = booking.id
   form.memberName = booking.memberName || ''
+  form.memberId = booking.memberId
   form.boatName = booking.boatName || ''
   form.boatId = booking.boatId
   form.sailDate = booking.bookingDate || ''
-  form.startTime = ''
-  form.endTime = ''
+  form.departureTime = ''
+  form.returnTime = ''
+  form.durationMinutes = 120
   form.weather = ''
-  form.seaState = ''
-  form.duration = 2
+  form.windSpeed = ''
+  form.tide = ''
   form.remark = ''
   visible.value = true
 }

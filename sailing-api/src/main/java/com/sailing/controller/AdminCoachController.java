@@ -94,10 +94,12 @@ public class AdminCoachController {
             @RequestParam(required = false) Long coachId,
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
+            @RequestParam(required = false) Integer page,
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize) {
-        Page<CoachSchedule> page = new Page<>(pageNum, pageSize);
-        IPage<CoachSchedule> schedulePage = coachScheduleService.getSchedulePage(page, coachId, startDate, endDate);
+        Integer pageNumber = page != null ? page : pageNum;
+        Page<CoachSchedule> pageParam = new Page<>(pageNumber, pageSize);
+        IPage<CoachSchedule> schedulePage = coachScheduleService.getSchedulePage(pageParam, coachId, startDate, endDate);
         List<CoachSchedule> schedules = schedulePage.getRecords();
         Set<Long> coachIds = schedules.stream()
                 .map(CoachSchedule::getCoachId)

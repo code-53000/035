@@ -26,23 +26,21 @@ public class SailingRecordVO {
 
     private LocalDateTime returnTime;
 
-    private String route;
-
     private String weather;
 
-    private String remark;
+    private String windSpeed;
 
-    private Long createdBy;
+    private String tide;
+
+    private Integer durationMinutes;
+
+    private String remark;
 
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;
 
-    private Integer deleted;
-
     private String memberName;
-
-    private String memberPhone;
 
     private String boatName;
 

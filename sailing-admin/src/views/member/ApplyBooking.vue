@@ -4,8 +4,14 @@
       <el-form-item label="船只">
         <el-input v-model="boatInfo.name" disabled />
       </el-form-item>
-      <el-form-item label="船只型号">
-        <el-input v-model="boatInfo.model" disabled />
+      <el-form-item label="船号">
+        <el-input v-model="boatInfo.code" disabled />
+      </el-form-item>
+      <el-form-item label="船型">
+        <el-input v-model="boatInfo.boatTypeName" disabled />
+      </el-form-item>
+      <el-form-item label="容量">
+        <el-input v-model="boatInfo.capacity" disabled />
       </el-form-item>
       <el-form-item label="预约日期" prop="bookingDate">
         <el-date-picker v-model="form.bookingDate" type="date" placeholder="选择日期" style="width: 100%" :disabled-date="disabledDate" />
@@ -16,9 +22,6 @@
           <el-option label="下午 13:00 - 17:00" value="AFTERNOON" />
           <el-option label="全天 08:00 - 17:00" value="FULL" />
         </el-select>
-      </el-form-item>
-      <el-form-item label="人数" prop="peopleCount">
-        <el-input-number v-model="form.peopleCount" :min="1" :max="boatInfo.capacity || 10" />
       </el-form-item>
       <el-form-item label="教练">
         <el-select v-model="form.coachId" placeholder="选择教练（可选）" style="width: 100%" clearable>
@@ -51,15 +54,13 @@ const form = reactive({
   boatId: null,
   bookingDate: '',
   timeSlot: '',
-  peopleCount: 1,
   coachId: null,
   remark: ''
 })
 
 const rules = {
   bookingDate: [{ required: true, message: '请选择预约日期', trigger: 'change' }],
-  timeSlot: [{ required: true, message: '请选择时间段', trigger: 'change' }],
-  peopleCount: [{ required: true, message: '请输入人数', trigger: 'blur' }]
+  timeSlot: [{ required: true, message: '请选择时间段', trigger: 'change' }]
 }
 
 const coaches = [
@@ -77,7 +78,6 @@ const open = (boat) => {
   form.boatId = boat.id
   form.bookingDate = ''
   form.timeSlot = ''
-  form.peopleCount = 1
   form.coachId = null
   form.remark = ''
   visible.value = true

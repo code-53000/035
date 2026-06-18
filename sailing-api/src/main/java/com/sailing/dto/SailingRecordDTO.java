@@ -27,9 +27,13 @@ public class SailingRecordDTO implements Serializable {
 
     private LocalDateTime returnTime;
 
-    private String route;
-
     private String weather;
+
+    private String windSpeed;
+
+    private String tide;
+
+    private Integer durationMinutes;
 
     private String remark;
 }

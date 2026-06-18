@@ -7,7 +7,6 @@
           <div>
             <el-select v-model="statusFilter" placeholder="状态" style="width: 140px; margin-right: 10px" clearable>
               <el-option label="已批准" value="APPROVED" />
-              <el-option label="已确认" value="CONFIRMED" />
               <el-option label="已完成" value="COMPLETED" />
             </el-select>
             <el-button type="primary" @click="loadData">查询</el-button>
@@ -19,20 +18,17 @@
         <el-table-column prop="memberName" label="会员" width="100" />
         <el-table-column prop="boatName" label="船只" />
         <el-table-column prop="bookingDate" label="预约日期" width="120" />
-        <el-table-column label="时间段" width="160">
-          <template #default="{ row }">{{ timeSlotText(row.timeSlot) }}</template>
-        </el-table-column>
-        <el-table-column prop="peopleCount" label="人数" width="80" />
-        <el-table-column prop="status" label="状态" width="100">
+        <el-table-column prop="timeSlotName" label="时间段" width="120" />
+        <el-table-column prop="statusName" label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="statusTagType(row.status)">{{ statusText(row.status) }}</el-tag>
+            <el-tag :type="statusTagType(row.bookingStatus)">{{ row.statusName || statusText(row.bookingStatus) }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="remark" label="备注" show-overflow-tooltip />
         <el-table-column label="操作" width="260" fixed="right">
           <template #default="{ row }">
-            <el-button v-if="row.status === 'APPROVED'" type="success" size="small" @click="handleConfirm(row)">确认带教</el-button>
-            <el-button v-if="row.status === 'CONFIRMED'" type="primary" size="small" @click="openAddRecord(row)">登记出海</el-button>
+            <el-button v-if="row.bookingStatus === 'APPROVED'" type="success" size="small" @click="handleConfirm(row)">确认带教</el-button>
+            <el-button v-if="row.bookingStatus === 'APPROVED'" type="primary" size="small" @click="openAddRecord(row)">登记出海</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -65,26 +61,25 @@ const page = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
 
-const statusText = (s) => ({ APPROVED: '已批准', CONFIRMED: '已确认', COMPLETED: '已完成' }[s] || s)
-const statusTagType = (s) => ({ APPROVED: 'success', CONFIRMED: 'primary', COMPLETED: 'info' }[s] || '')
-const timeSlotText = (s) => ({ MORNING: '上午 08:00-12:00', AFTERNOON: '下午 13:00-17:00', FULL: '全天 08:00-17:00' }[s] || s)
+const statusText = (s) => ({ APPROVED: '已批准', COMPLETED: '已完成' }[s] || s)
+const statusTagType = (s) => ({ APPROVED: 'success', COMPLETED: 'info' }[s] || '')
 
 const mockBookings = [
-  { id: 1010, memberName: '张三', boatName: '海风号', bookingDate: '2026-06-18', timeSlot: 'MORNING', peopleCount: 3, status: 'CONFIRMED', remark: '初学者体验' },
-  { id: 1011, memberName: '李四', boatName: '迅浪号', bookingDate: '2026-06-18', timeSlot: 'AFTERNOON', peopleCount: 2, status: 'APPROVED', remark: '进阶训练' },
-  { id: 1012, memberName: '王五', boatName: '飞翔号', bookingDate: '2026-06-19', timeSlot: 'MORNING', peopleCount: 1, status: 'APPROVED', remark: '' },
-  { id: 1013, memberName: '赵六', boatName: '蓝调号', bookingDate: '2026-06-15', timeSlot: 'FULL', peopleCount: 6, status: 'COMPLETED', remark: '家庭包船' }
+  { id: 1010, memberName: '张三', boatName: '海风号', bookingDate: '2026-06-18', timeSlot: 'MORNING', timeSlotName: '上午', bookingStatus: 'APPROVED', statusName: '已批准', remark: '初学者体验' },
+  { id: 1011, memberName: '李四', boatName: '迅浪号', bookingDate: '2026-06-18', timeSlot: 'AFTERNOON', timeSlotName: '下午', bookingStatus: 'APPROVED', statusName: '已批准', remark: '进阶训练' },
+  { id: 1012, memberName: '王五', boatName: '飞翔号', bookingDate: '2026-06-19', timeSlot: 'MORNING', timeSlotName: '上午', bookingStatus: 'APPROVED', statusName: '已批准', remark: '' },
+  { id: 1013, memberName: '赵六', boatName: '蓝调号', bookingDate: '2026-06-15', timeSlot: 'FULLDAY', timeSlotName: '全天', bookingStatus: 'COMPLETED', statusName: '已完成', remark: '家庭包船' }
 ]
 
 const loadData = async () => {
   loading.value = true
   try {
     const res = await getCoachBookings({ status: statusFilter.value, page: page.value, pageSize: pageSize.value })
-    tableData.value = res.data?.list || res.data || []
-    total.value = res.data?.total || tableData.value.length
+    tableData.value = res.data?.records || []
+    total.value = res.data?.total || 0
   } catch (e) {
     let list = mockBookings
-    if (statusFilter.value) list = list.filter(b => b.status === statusFilter.value)
+    if (statusFilter.value) list = list.filter(b => b.bookingStatus === statusFilter.value)
     total.value = list.length
     const start = (page.value - 1) * pageSize.value
     tableData.value = list.slice(start, start + pageSize.value)
@@ -102,7 +97,8 @@ const handleConfirm = async (row) => {
   } catch (e) {
     if (e !== 'cancel') {
       ElMessage.success('确认成功（模拟）')
-      row.status = 'CONFIRMED'
+      row.bookingStatus = 'APPROVED'
+      row.statusName = '已批准'
     }
   }
 }

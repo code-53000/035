@@ -24,8 +24,6 @@ public class CoachScheduleVO {
 
     private LocalDateTime updateTime;
 
-    private Integer deleted;
-
     private String coachName;
 
     private String timeSlotName;

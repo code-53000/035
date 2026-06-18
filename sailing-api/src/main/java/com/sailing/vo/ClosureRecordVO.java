@@ -26,8 +26,6 @@ public class ClosureRecordVO {
 
     private LocalDateTime updateTime;
 
-    private Integer deleted;
-
     private String createdByName;
 
     private String timeSlotName;

@@ -79,11 +79,15 @@ public class BoatServiceImpl extends ServiceImpl<BoatMapper, Boat> implements Bo
     public IPage<BoatVO> getBoatPage(Page<BoatVO> page, BoatQueryDTO queryDTO) {
         LambdaQueryWrapper<Boat> wrapper = new LambdaQueryWrapper<>();
         if (queryDTO != null) {
-            if (StringUtils.hasText(queryDTO.getName())) {
-                wrapper.like(Boat::getName, queryDTO.getName());
-            }
-            if (StringUtils.hasText(queryDTO.getCode())) {
-                wrapper.like(Boat::getCode, queryDTO.getCode());
+            if (StringUtils.hasText(queryDTO.getKeyword())) {
+                wrapper.and(w -> w.like(Boat::getName, queryDTO.getKeyword()).or().like(Boat::getCode, queryDTO.getKeyword()));
+            } else {
+                if (StringUtils.hasText(queryDTO.getName())) {
+                    wrapper.like(Boat::getName, queryDTO.getName());
+                }
+                if (StringUtils.hasText(queryDTO.getCode())) {
+                    wrapper.like(Boat::getCode, queryDTO.getCode());
+                }
             }
             if (StringUtils.hasText(queryDTO.getBoatType())) {
                 wrapper.eq(Boat::getBoatType, queryDTO.getBoatType());

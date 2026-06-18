@@ -34,8 +34,6 @@ public class BookingVO {
 
     private LocalDateTime updateTime;
 
-    private Integer deleted;
-
     private String memberName;
 
     private String memberPhone;

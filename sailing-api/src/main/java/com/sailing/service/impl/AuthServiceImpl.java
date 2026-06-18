@@ -45,8 +45,17 @@ public class AuthServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
             throw new BusinessException("用户名或密码错误");
         }
         String token = jwtTokenUtil.generateToken(user.getId(), user.getUsername());
+        UserInfoDTO userInfoDTO = new UserInfoDTO();
+        userInfoDTO.setId(user.getId());
+        userInfoDTO.setUsername(user.getUsername());
+        userInfoDTO.setRealName(user.getRealName());
+        userInfoDTO.setPhone(user.getPhone());
+        userInfoDTO.setRole(user.getRole());
+        userInfoDTO.setStatus(user.getStatus());
         LoginRespDTO respDTO = new LoginRespDTO();
         respDTO.setToken(token);
+        respDTO.setUserInfo(userInfoDTO);
+        respDTO.setUser(userInfoDTO);
         respDTO.setUserId(user.getId());
         respDTO.setUsername(user.getUsername());
         respDTO.setRealName(user.getRealName());

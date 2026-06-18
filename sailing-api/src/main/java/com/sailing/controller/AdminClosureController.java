@@ -81,6 +81,7 @@ public class AdminClosureController {
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
             @RequestParam(required = false) Integer status,
+            @RequestParam(required = false) Integer page,
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize) {
         LambdaQueryWrapper<ClosureRecord> wrapper = new LambdaQueryWrapper<>();
@@ -94,8 +95,9 @@ public class AdminClosureController {
             wrapper.eq(ClosureRecord::getStatus, status);
         }
         wrapper.orderByDesc(ClosureRecord::getClosureDate);
-        Page<ClosureRecord> page = new Page<>(pageNum, pageSize);
-        IPage<ClosureRecord> recordPage = closureRecordMapper.selectPage(page, wrapper);
+        Integer pageNumber = page != null ? page : pageNum;
+        Page<ClosureRecord> pageParam = new Page<>(pageNumber, pageSize);
+        IPage<ClosureRecord> recordPage = closureRecordMapper.selectPage(pageParam, wrapper);
         List<ClosureRecord> records = recordPage.getRecords();
         Set<Long> userIds = records.stream()
                 .map(ClosureRecord::getCreatedBy)

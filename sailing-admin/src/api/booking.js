@@ -2,7 +2,7 @@ import request from '../utils/request'
 
 export function getBookingList(params) {
   return request({
-    url: '/bookings',
+    url: '/admin/bookings',
     method: 'get',
     params
   })
@@ -10,7 +10,7 @@ export function getBookingList(params) {
 
 export function getMyBookings(params) {
   return request({
-    url: '/bookings/mine',
+    url: '/member/bookings',
     method: 'get',
     params
   })
@@ -18,7 +18,7 @@ export function getMyBookings(params) {
 
 export function getCoachBookings(params) {
   return request({
-    url: '/bookings/coach',
+    url: '/coach/bookings',
     method: 'get',
     params
   })
@@ -26,7 +26,7 @@ export function getCoachBookings(params) {
 
 export function createBooking(data) {
   return request({
-    url: '/bookings',
+    url: '/member/bookings',
     method: 'post',
     data
   })
@@ -34,29 +34,30 @@ export function createBooking(data) {
 
 export function cancelBooking(id) {
   return request({
-    url: '/bookings/' + id + '/cancel',
+    url: '/member/bookings/' + id + '/cancel',
     method: 'put'
   })
 }
 
-export function approveBooking(id) {
+export function approveBooking(id, data) {
   return request({
-    url: '/bookings/' + id + '/approve',
-    method: 'put'
+    url: '/admin/bookings/' + id + '/approve',
+    method: 'put',
+    data: data || { bookingStatus: 'APPROVED' }
   })
 }
 
 export function rejectBooking(id, data) {
   return request({
-    url: '/bookings/' + id + '/reject',
+    url: '/admin/bookings/' + id + '/approve',
     method: 'put',
-    data
+    data: { ...data, bookingStatus: 'REJECTED' }
   })
 }
 
 export function confirmBooking(id) {
   return request({
-    url: '/bookings/' + id + '/confirm',
+    url: '/coach/bookings/' + id + '/confirm',
     method: 'put'
   })
 }

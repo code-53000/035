@@ -105,13 +105,10 @@ public class MemberController {
     }
 
     @GetMapping("/bookings")
-    public Result<IPage<BookingVO>> getMyBookings(
-            BookingQueryDTO bookingQueryDTO,
-            @RequestParam(defaultValue = "1") Integer pageNum,
-            @RequestParam(defaultValue = "10") Integer pageSize) {
+    public Result<IPage<BookingVO>> getMyBookings(BookingQueryDTO bookingQueryDTO) {
         Long memberId = getCurrentUserId();
         bookingQueryDTO.setMemberId(memberId);
-        Page<BookingVO> page = new Page<>(pageNum, pageSize);
+        Page<BookingVO> page = new Page<>(bookingQueryDTO.getPageNum(), bookingQueryDTO.getPageSize());
         IPage<BookingVO> result = sailingBookingService.getBookingPage(page, bookingQueryDTO);
         return Result.success(result);
     }
@@ -148,11 +145,13 @@ public class MemberController {
     public Result<IPage<SailingRecordVO>> getMyRecords(
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
+            @RequestParam(required = false) Integer page,
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize) {
         Long memberId = getCurrentUserId();
-        Page<SailingRecordVO> page = new Page<>(pageNum, pageSize);
-        IPage<SailingRecordVO> result = sailingRecordService.getRecordPage(page, memberId, null, null, startDate, endDate);
+        Integer pageNumber = page != null ? page : pageNum;
+        Page<SailingRecordVO> pageParam = new Page<>(pageNumber, pageSize);
+        IPage<SailingRecordVO> result = sailingRecordService.getRecordPage(pageParam, memberId, null, null, startDate, endDate);
         return Result.success(result);
     }
 }

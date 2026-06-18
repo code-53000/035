@@ -2,11 +2,10 @@ package com.sailing.dto;
 
 import lombok.Data;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 
 @Data
-public class BookingQueryDTO implements Serializable {
+public class BookingQueryDTO {
 
     private Long memberId;
 
@@ -14,9 +13,27 @@ public class BookingQueryDTO implements Serializable {
 
     private Long boatId;
 
+    private String status;
+
     private String bookingStatus;
 
     private LocalDate startDate;
 
     private LocalDate endDate;
+
+    private Integer page;
+
+    private Integer pageNum = 1;
+
+    private Integer pageSize = 10;
+
+    public Integer getPageNum() {
+        if (page != null) return page;
+        return pageNum;
+    }
+
+    public String getBookingStatus() {
+        if (bookingStatus != null) return bookingStatus;
+        return status;
+    }
 }

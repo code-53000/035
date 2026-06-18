@@ -85,20 +85,11 @@ public class CoachController {
     }
 
     @GetMapping("/bookings")
-    public Result<IPage<BookingVO>> getMyBookings(
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) LocalDate startDate,
-            @RequestParam(required = false) LocalDate endDate,
-            @RequestParam(defaultValue = "1") Integer pageNum,
-            @RequestParam(defaultValue = "10") Integer pageSize) {
+    public Result<IPage<BookingVO>> getMyBookings(BookingQueryDTO bookingQueryDTO) {
         Long coachId = getCurrentUserId();
-        BookingQueryDTO queryDTO = new BookingQueryDTO();
-        queryDTO.setCoachId(coachId);
-        queryDTO.setBookingStatus(status);
-        queryDTO.setStartDate(startDate);
-        queryDTO.setEndDate(endDate);
-        Page<BookingVO> page = new Page<>(pageNum, pageSize);
-        IPage<BookingVO> result = sailingBookingService.getBookingPage(page, queryDTO);
+        bookingQueryDTO.setCoachId(coachId);
+        Page<BookingVO> page = new Page<>(bookingQueryDTO.getPageNum(), bookingQueryDTO.getPageSize());
+        IPage<BookingVO> result = sailingBookingService.getBookingPage(page, bookingQueryDTO);
         return Result.success(result);
     }
 
@@ -129,11 +120,13 @@ public class CoachController {
     public Result<IPage<SailingRecordVO>> getMySailingRecords(
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
+            @RequestParam(required = false) Integer page,
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize) {
         Long coachId = getCurrentUserId();
-        Page<SailingRecordVO> page = new Page<>(pageNum, pageSize);
-        IPage<SailingRecordVO> result = sailingRecordService.getRecordPage(page, null, coachId, null, startDate, endDate);
+        Integer pageNumber = page != null ? page : pageNum;
+        Page<SailingRecordVO> pageParam = new Page<>(pageNumber, pageSize);
+        IPage<SailingRecordVO> result = sailingRecordService.getRecordPage(pageParam, null, coachId, null, startDate, endDate);
         return Result.success(result);
     }
 }

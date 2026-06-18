@@ -9,6 +9,8 @@ public class LoginRespDTO {
 
     private UserInfoDTO userInfo;
 
+    private UserInfoDTO user;
+
     private Long userId;
 
     private String username;

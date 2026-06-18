@@ -2,7 +2,7 @@ import request from '../utils/request'
 
 export function getClosureList(params) {
   return request({
-    url: '/closures',
+    url: '/admin/closures',
     method: 'get',
     params
   })
@@ -10,7 +10,7 @@ export function getClosureList(params) {
 
 export function createClosure(data) {
   return request({
-    url: '/closures',
+    url: '/admin/closures',
     method: 'post',
     data
   })
@@ -18,7 +18,7 @@ export function createClosure(data) {
 
 export function updateClosure(id, data) {
   return request({
-    url: '/closures/' + id,
+    url: '/admin/closures/' + id,
     method: 'put',
     data
   })
@@ -26,7 +26,7 @@ export function updateClosure(id, data) {
 
 export function deleteClosure(id) {
   return request({
-    url: '/closures/' + id,
+    url: '/admin/closures/' + id,
     method: 'delete'
   })
 }

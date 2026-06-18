@@ -26,6 +26,11 @@ public class AuthController {
         return Result.success(loginRespDTO);
     }
 
+    @PostMapping("/logout")
+    public Result<Void> logout() {
+        return Result.success();
+    }
+
     @GetMapping("/me")
     public Result<UserInfoDTO> getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -33,5 +38,10 @@ public class AuthController {
         Long userId = securityUser.getUserId();
         UserInfoDTO userInfoDTO = authService.getCurrentUser(userId);
         return Result.success(userInfoDTO);
+    }
+
+    @GetMapping("/userinfo")
+    public Result<UserInfoDTO> getUserInfo() {
+        return getCurrentUser();
     }
 }

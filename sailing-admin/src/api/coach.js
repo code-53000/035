@@ -2,7 +2,7 @@ import request from '../utils/request'
 
 export function getCoachList(params) {
   return request({
-    url: '/coaches',
+    url: '/admin/coaches/list',
     method: 'get',
     params
   })
@@ -10,15 +10,15 @@ export function getCoachList(params) {
 
 export function getMySchedule(params) {
   return request({
-    url: '/coaches/schedule/mine',
+    url: '/coach/schedule',
     method: 'get',
     params
   })
 }
 
-export function getCoachSchedule(coachId, params) {
+export function getCoachScheduleList(params) {
   return request({
-    url: '/coaches/' + coachId + '/schedule',
+    url: '/admin/coaches/schedules',
     method: 'get',
     params
   })
@@ -26,7 +26,7 @@ export function getCoachSchedule(coachId, params) {
 
 export function addSchedule(data) {
   return request({
-    url: '/coaches/schedule',
+    url: '/admin/coaches/schedules',
     method: 'post',
     data
   })
@@ -34,7 +34,7 @@ export function addSchedule(data) {
 
 export function updateSchedule(id, data) {
   return request({
-    url: '/coaches/schedule/' + id,
+    url: '/admin/coaches/schedules/' + id,
     method: 'put',
     data
   })
@@ -42,7 +42,7 @@ export function updateSchedule(id, data) {
 
 export function deleteSchedule(id) {
   return request({
-    url: '/coaches/schedule/' + id,
+    url: '/admin/coaches/schedules/' + id,
     method: 'delete'
   })
 }
