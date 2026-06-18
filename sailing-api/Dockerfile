@@ -6,7 +6,7 @@ RUN mvn dependency:go-offline -pl sailing-api -am
 COPY . .
 RUN mvn clean package -pl sailing-api -am -DskipTests
 
-FROM openjdk:8-jre-slim
+FROM eclipse-temurin:8-jre
 WORKDIR /app
 COPY --from=builder /app/sailing-api/target/sailing-api.jar /app/app.jar
 ENV TZ=Asia/Shanghai

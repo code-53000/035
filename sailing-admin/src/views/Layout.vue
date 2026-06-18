@@ -2,7 +2,7 @@
   <el-container class="layout-container">
     <el-aside :width="isCollapse ? '64px' : '220px'" class="aside">
       <div class="logo">
-        <el-icon v-if="isCollapse" :size="28"><Sailboat /></el-icon>
+        <el-icon v-if="isCollapse" :size="28"><Compass /></el-icon>
         <span v-else class="logo-text">帆船管理系统</span>
       </div>
       <el-menu
@@ -14,7 +14,7 @@
         active-text-color="#409EFF"
       >
         <el-menu-item index="/boats">
-          <el-icon><Sailboat /></el-icon>
+          <el-icon><Compass /></el-icon>
           <template #title>船只列表</template>
         </el-menu-item>
         <el-menu-item v-if="role === 'MEMBER'" index="/my-bookings">
@@ -87,7 +87,7 @@ import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import {
-  Sailboat, Tickets, Document, Calendar, Setting,
+  Compass, Tickets, Document, Calendar, Setting,
   UserFilled, ArrowDown, Fold, Expand
 } from '@element-plus/icons-vue'
 import { getUser, getRole, removeToken } from '../utils/auth'
